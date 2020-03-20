@@ -94,8 +94,8 @@ class SortingRobot:
 		"""
         return self._light == "ON"
 
-    def set_item(self, item):
-        self._item = item
+    def set_item(self):
+        self._item = self._list[self._position + 1]
 
     def set_position(self, i):
         self._position = i
@@ -106,22 +106,27 @@ class SortingRobot:
 		"""
         # start at the beginning
         for i in range(0, len(self._list) - 1):
-            self.set_item(self._list[self._position + 1])
-            while self._position <= len(self._list) - 1 and self.can_move_right():
-                # set item
+            # set item
+            self.set_item()
 
+            while self._position <= len(self._list) - 1 and self.can_move_right():
                 # if compare item
-                if self.compare_item():  # item > list[self.position]
-                    # move right
+                if self.compare_item() == 1:  # item > list[self.position]
+                    # move right - bot position is less the next position.
                     self.move_right()
-                    # else
+                    if self.can_move_right():
+                        self.set_item()  # set new item as next
                 else:
+                    # else
                     self.swap_item()
                     self.move_right()
 
+                    if self.can_move_right():
+                        self.set_item()  # set new item as next
+
             # start at beginning of list again
             self.set_position(0)
-            self.set_item(self._list[self._position + 1])
+            self.set_item()
             i += 1
 
 
@@ -236,3 +241,4 @@ if __name__ == "__main__":
 
     robot.sort()
     print(robot._list)
+
