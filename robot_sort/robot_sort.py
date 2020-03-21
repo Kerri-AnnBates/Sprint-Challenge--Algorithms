@@ -94,40 +94,40 @@ class SortingRobot:
 		"""
         return self._light == "ON"
 
-    def set_item(self):
-        self._item = self._list[self._position + 1]
-
-    def set_position(self, i):
-        self._position = i
-
     def sort(self):
         """
 		Sort the robot's list.
 		"""
-        # start at the beginning
-        for i in range(0, len(self._list) - 1):
-            # set item
-            self.set_item()
 
-            while self._position <= len(self._list) - 1 and self.can_move_right():
-                # if compare item
-                if self.compare_item() == 1:  # item > list[self.position]
-                    # move right - bot position is less the next position.
-                    self.move_right()
-                    if self.can_move_right():
-                        self.set_item()  # set new item as next
-                else:
-                    # else
+        # start at sorting
+        self.set_light_on()
+
+        # while robot light is on, keep sorting list
+        while self.light_is_on():
+            self.set_light_off()  # turn light off to indicate a swap has not happened
+
+            # while not at the end of the list, compare items and move right
+            while self.can_move_right():
+                # Pick up item
+                self.swap_item()
+                self.move_right()
+
+                # Compare item, if current item is greater than next item
+                if self.compare_item() == 1:
+                    # if compare item is true, swap item with currently held item
                     self.swap_item()
-                    self.move_right()
+                    self.move_left()  # go back to place smaller item in place
+                    self.swap_item()  # swap item with nothing
+                    self.move_right()  # move right to go to next item
+                    self.set_light_on()  # indicate a swap happenned
+                else:
+                    self.move_left()  # go back left
+                    self.swap_item()  # put item back, currently holding nothing
+                    self.move_right()  # go to next item
 
-                    if self.can_move_right():
-                        self.set_item()  # set new item as next
-
-            # start at beginning of list again
-            self.set_position(0)
-            self.set_item()
-            i += 1
+            # Go back to beginning to do it again.
+            while self.can_move_left():
+                self.move_left()
 
 
 if __name__ == "__main__":
@@ -241,4 +241,3 @@ if __name__ == "__main__":
 
     robot.sort()
     print(robot._list)
-
